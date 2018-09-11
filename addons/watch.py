@@ -90,10 +90,8 @@ class Watch:
     @commands.command()
     async def getwatchfile(self, ctx) -> None:
         '''grabs the requested watch file and then sends the file to the channel it was requested from'''
-        nfile = discord.File(open("data/watching/users/{id}.txt".format(id=ctx.message.mentions[0].id),
-                          'rb'), filename=f'{ctx.message.mentions[0].display_name}_watch_data')
-        print(nfile)
-        await ctx.send(file=nfile)
+        await ctx.send(file=discord.File(open("data/watching/{id}.txt".format(id=ctx.message.mentions[0].id), 'rb'),
+                                         filename=f'{ctx.message.mentions[0].display_name}_watch_data'))
 
     @staticmethod
     async def watchlogging(self, message) -> None:
@@ -117,7 +115,6 @@ class Watch:
                 except Exception as e:
                     print("ERROR - {error_name}: {error}".format(error_name=type(e).__name__, error=e))
 
-
     @staticmethod
     async def editlogging(self, before, after) -> None:
         '''used for logging an individuals edits'''
@@ -131,7 +128,7 @@ class Watch:
                                              discrim=before.author.discriminator, id=before.author.id,
                                              date=before.edited_at, mention=before.author.mention,
                                              content=before.content, content2=after.content)
-                    await datamanagement.write_to_user_watch_file(before.author.id, msg)
+                    datamanagement.write_to_user_watch_file(before.author.id, msg)
                     channel = find(lambda channel: channel.id == self.bot.guild_data["botlogs"],
                                    before.guild.channels)
                     await channel.send(msg)

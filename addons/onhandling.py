@@ -7,8 +7,6 @@ class OnHandling:
 
     async def on_message(self, message):
         await watch.Watch.watchlogging(self, message)
-        if "hike" in message.content.lower():
-            await message.add_reaction([emoji for emoji in message.guild.emojis if emoji.name == "hike"][0])
 
     async def on_message_delete(self, message):
         await watch.Watch.deletelogging(self, message)
