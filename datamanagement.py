@@ -45,6 +45,7 @@ def write_to_channel_watch_file(name: str, message: str) -> None:
         file.seek(0)
         file.write(message)
         file.write("\n")
+        file.write(body)
 
 
 def setup() -> dict:

@@ -150,7 +150,7 @@ class Watch:
         try:
             await ctx.send(file=discord.File(open("data/watching/users/{id}.txt" \
                                              .format(id=ctx.message.mentions[0].id), 'rb'),
-                                                     filename=f'{ctx.message.mentions[0].display_name}_watch_data'))
+                                                     filename=f'{ctx.message.mentions[0].display_name}_watch_data.txt'))
         except FileNotFoundError:
             await ctx.send("File not found for {user}".format(user=ctx.message.mentions[0]))
 
