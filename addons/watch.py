@@ -59,10 +59,8 @@ class Watch:
         '''gets watch modes'''
         mode = self.watchswitch[self.bot.guild_data["watchmode"]]
         await ctx.send("Watchmode: {wmode}\n"
-                       "ChannelWatch: {cwatch}\n"
-                       "Watch All: {wall}".format(wmode=mode,
-                                                  cwatch=self.bot.guild_data["channelwatch"],
-                                                  wall=self.bot.guild_data["watchall"]))
+                       "ChannelWatch: {cwatch}\n".format(wmode=mode,
+                                                  cwatch=self.bot.guild_data["channelwatch"]))
 
     def watchlist(self, ctx):
         title = "**Users on Watch**"
