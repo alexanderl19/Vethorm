@@ -54,7 +54,6 @@ async def on_ready() -> None:
         'botlogs': None,
         'watchmode': False,
         'channelwatch': False,
-        'watchall': False,
         'watching': []
         }
         bot.dump()

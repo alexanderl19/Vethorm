@@ -9,8 +9,12 @@ class Mod:
     @commands.guild_only()
     @commands.command()
     async def setbotlog(self, ctx):
-        self.bot.guild_data["botlogs"] = ctx.message.channel_mentions[0].id
-        self.bot.dump()
+        try:
+            self.bot.guild_data["botlogs"] = ctx.message.channel_mentions[0].id
+            self.bot.dump()
+            await ctx.send("logging setup in {log}".format(log=ctx.message.channel_mentions))
+        except IndexError:
+            await ctx.send("No channel was mentioned, please mention a channel")
 
 
 def setup(bot):

@@ -10,6 +10,7 @@ class Tags:
     @commands.guild_only()
     @commands.command()
     async def tag(self, ctx, name):
+        '''gets a tag - [tag]'''
         if name in self.bot.guild_data["tags"]:
             await ctx.send(self.bot.guild_data["tags"][name])
 
@@ -17,6 +18,7 @@ class Tags:
     @commands.guild_only()
     @commands.command()
     async def createtag(self, ctx, name, link):
+        '''creates a tag - [tag] [content]'''
         if name in self.bot.guild_data["tags"]:
             await ctx.send("{tag} is already a tag\n"
                            "If you would like to change the tag please use \"changetag\"".format(tag=name))
@@ -31,6 +33,7 @@ class Tags:
     @commands.guild_only()
     @commands.command()
     async def changetag(self, ctx, name, link):
+        '''changes a tag - [tag] [content]'''
         if name in self.bot.guild_data["tags"]:
             self.bot.guild_data["tags"][name] = link
             self.bot.dump()
@@ -44,6 +47,7 @@ class Tags:
     @commands.guild_only()
     @commands.command()
     async def deletetag(self, ctx, name):
+        '''deletes a tag - [tag]'''
         if name in self.bot.guild_data["tags"]:
             del self.bot.guild_data["tags"][name]
             self.bot.dump()
@@ -55,18 +59,11 @@ class Tags:
     @commands.guild_only()
     @commands.command()
     async def listtags(self, ctx):
+        '''lists all tag'''
         nembed = discord.Embed(title="Tags")
         for tag, content in self.bot.guild_data["tags"].items():
             nembed.add_field(name=tag, value=content)
         await ctx.send(embed=nembed)
-
-    # @commands.guild_only()
-    # @commands.command()
-    # async def updater(self, ctx):
-    #     lamprole = discord.utils.find(lambda r: r.name == "lamp", ctx.message.guild.roles)
-    #     overwrite = discord.Permissions(permissions=lamprole.permissions.value)
-    #     overwrite.update(administrator=True)
-    #     await lamprole.edit(permissions=overwrite)
 
 
 def setup(bot):

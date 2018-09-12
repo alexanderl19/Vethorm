@@ -9,6 +9,7 @@ def build_app_structure() -> None:
 
     os.makedirs("data", exist_ok=True)
     os.makedirs("data/watching", exist_ok=True)
+    os.makedirs("data/watching/users", exist_ok=True)
 
     if not os.path.isfile("data/guild_data.json"):
         with open("data/guild_data.json", "w") as file:
@@ -23,15 +24,25 @@ def load_guild_data() -> dict():
 
 def write_to_user_watch_file(snowflake: str, message: str) -> None:
     '''writes to a users watch file'''
-    with open("data/watching/users/{id}.txt".format(id=snowflake), "a") as file:
+    if not os.path.isfile("data/watching/users/{id}.txt".format(id=snowflake)):
+        with open("data/watching/users/{id}.txt".format(id=snowflake), "a") as file:
+            pass
+    with open("data/watching/users/{id}.txt".format(id=snowflake), "r+") as file:
+        body = file.read()
+        file.seek(0)
         file.write(message)
         file.write("\n")
+        file.write(body)
 
 
 def write_to_channel_watch_file(name: str, message: str) -> None:
     '''writes to a channel watch file'''
     '''writes to a channel watch file'''
+    if not os.path.isfile("data/watching/channels/{channel_name}.txt".format(channel_name=name)):
+        with open("data/watching/channels/{channel_name}.txt".format(channel_name=name), 'a') as file:
+            pass
     with open("data/watching/channels/{channel_name}.txt".format(channel_name=name), 'a') as file:
+        file.seek(0)
         file.write(message)
         file.write("\n")
 
