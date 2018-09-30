@@ -213,20 +213,20 @@ class Watch:
     @staticmethod
     async def channellogging(self, message) -> None:
         '''used for logging a channel's messages'''
-        if self.bot.guild_data["watchmode"] is True:
-            if self.bot.guild_data["channelwatch"] is True:
-                try:
-                    msg = "{nickname}: {name}#{discrim} {id} {date}\n" \
+        if self.bot.guild_data["channelwatch"] is True:
+            try:
+                msg = "{nickname}: {name}#{discrim} {id} {date}\n" \
                           "{mention}\n" \
                           "DELETED: {content}\n".format(nickname=message.author.display_name, name=message.author.name,
                                                         discrim=message.author.discriminator, id=message.author.id,
                                                         date=message.created_at, mention=message.author.mention,
                                                         content=message.content)
-                    datamanagement.write_to_user_watch_file(message.author.id, msg)
-                except AttributeError:
-                    pass
-                except Exception as e:
-                    print("ERROR - {error_name}: {error}".format(error_name=type(e).__name__, error=e))
+                datamanagement.write_to_channel_watch_file(message.channel.name, msg)
+            except AttributeError:
+                pass
+            except Exception as e:
+                print("ERROR - {error_name}: {error}".format(error_name=type(e).__name__, error=e))
+            
 
 
 def setup(bot):
