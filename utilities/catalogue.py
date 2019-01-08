@@ -5,6 +5,7 @@ from bs4 import BeautifulSoup
 
 
 class Course:
+    '''class used to store the information given in the course catalogue'''
     def __init__(self, cid: str, ctitle: str, cunits: str, cdesc: str, so: list, preq: str =None, restric: str =None,
                  overlap: str =None, concurr: str =None, same: str =None, grading: str =None,
                  repeat: str =None, cat: str =None):
@@ -39,6 +40,8 @@ class Course:
 
 
 def create_course(parsable: html.Element, courseID: str) -> Course:
+    '''creates a course object from the html Element containing the various information pulled from the
+    UCI course catalogue'''
     cid = ""
     ctitle = ""
     cunits = ""

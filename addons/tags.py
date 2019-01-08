@@ -44,6 +44,13 @@ class Tags:
             await ctx.send("**TAG CHANGED** - {tag} : {data}".format(tag=name, data=link))
         else:
             await ctx.send("{tag} is not a currently existing tag".format(tag=name))
+            self.bot.guild_data["tags"][name] = link
+            self.bot.dump()
+            if not link.startswith("http://") and not link.startswith("https://"):
+                await ctx.send("If {data} was supposed to be a link it needs to begin with http:// or https://\n"
+                               "You can change the tag with \"changetag\"".format(data=link))
+            await ctx.send("**TAG CREATED** - {tag} : {data}".format(tag=name, data=link))
+
 
     @commands.has_permissions(administrator=True)
     @commands.guild_only()
@@ -55,7 +62,7 @@ class Tags:
             self.bot.dump()
             await ctx.send("**TAG DELETED** - {tag}".format(tag=name))
         else:
-            await ctx.send("{tag} is not a currently existing tag".format(tag=name))
+            await ctx.send("{tag} is not a currently existing tag\nNo tag deleted".format(tag=name))
 
     # @commands.has_permissions(administrator=True)
     @commands.guild_only()

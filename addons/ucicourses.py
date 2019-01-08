@@ -1,6 +1,7 @@
 import discord
 import utilities.catalogue
 from discord.ext import commands
+import re
 
 
 class UCICourses:
@@ -22,6 +23,9 @@ class UCICourses:
             # print(message)
             self.bot.guild_data["cataloguealiases"][message[0].lower()] = message[1].lower()
             self.bot.dump()
+            await ctx.send("**ALIAS CREATED**\n"
+                           "Alias -> {alias}\n"
+                           "Department -> {department}".format(alias=message[0].lower(), department=message[1].lower()))
 
     @commands.has_permissions(administrator=True)
     @commands.guild_only()
@@ -29,8 +33,13 @@ class UCICourses:
     async def removealias(self, ctx, alias):
         '''removes an alias - [alias]
         aliases must be one word'''
-        del self.bot.guild_data["cataloguealiases"][alias.lower()]
-        await ctx.send(alias.lower(), "deleted")
+        try:
+            del self.bot.guild_data["cataloguealiases"][alias.lower()]
+            self.bot.dump()
+            await ctx.send("**DELETED ALIAS**\n" +
+                           alias.lower() + " **deleted**")
+        except KeyError:
+            await ctx.send("Alias \"%s\" does not exist - nothing deleted" % alias)
 
     # @commands.has_permissions(administrator=True)
     @commands.guild_only()
