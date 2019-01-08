@@ -6,7 +6,7 @@ class Tags:
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.has_permissions(administrator=True)
+    # @commands.has_permissions(administrator=True)
     @commands.guild_only()
     @commands.command()
     async def tag(self, ctx, name):
@@ -28,6 +28,7 @@ class Tags:
             if not link.startswith("http://") and not link.startswith("https://"):
                 await ctx.send("If {data} was supposed to be a link it needs to begin with http:// or https://\n"
                                "You can change the tag with \"changetag\"".format(data=link))
+            await ctx.send("**TAG CREATED** - {tag} : {data}".format(tag=name, data=link))
 
     @commands.has_permissions(administrator=True)
     @commands.guild_only()
@@ -40,6 +41,7 @@ class Tags:
             if not link.startswith("http://") and not link.startswith("https://"):
                 await ctx.send("If {data} was supposed to be a link it needs to begin with http:// or https://\n"
                                "You can change the tag with \"changetag\"".format(data=link))
+            await ctx.send("**TAG CHANGED** - {tag} : {data}".format(tag=name, data=link))
         else:
             await ctx.send("{tag} is not a currently existing tag".format(tag=name))
 
@@ -51,11 +53,11 @@ class Tags:
         if name in self.bot.guild_data["tags"]:
             del self.bot.guild_data["tags"][name]
             self.bot.dump()
-            await ctx.send("tag deleted")
+            await ctx.send("**TAG DELETED** - {tag}".format(tag=name))
         else:
             await ctx.send("{tag} is not a currently existing tag".format(tag=name))
 
-    @commands.has_permissions(administrator=True)
+    # @commands.has_permissions(administrator=True)
     @commands.guild_only()
     @commands.command()
     async def listtags(self, ctx):
