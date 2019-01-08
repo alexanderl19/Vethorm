@@ -1,6 +1,7 @@
 import re
 import requests
 from lxml import html
+from bs4 import BeautifulSoup
 
 
 class Course:
@@ -22,18 +23,18 @@ class Course:
         self.spillover = so
 
     def print_course(self):
-        print("COURSE ID: " + self.courseID)
-        print("COURSE TITLE: " + self.course_title)
-        print("COURSE UNITS: " + self.course_units)
-        print("COURSE DESC: " + self.course_desc)
-        print("COURSE PREQS: " + self.prereqs)
-        print("COURSE RESTRICS: " + self.restrictions)
-        print("COURSE OVERLAPS: " + self.overlaps)
-        print("COURSE CONCURRENT: " + self.concurrent)
-        print("COURSE SAME AS: " + self.same_as)
-        print("COURSE GRADING: " + self.grading_option)
-        print("COURSE REPEATABILITY: " + self.repeatability)
-        print("COURSE CATEGORY: " + self.category)
+        print("COURSE ID: ", self.courseID)
+        print("COURSE TITLE: ", self.course_title)
+        print("COURSE UNITS: ", self.course_units)
+        print("COURSE DESC: ", self.course_desc)
+        print("COURSE PREQS: ", self.prereqs)
+        print("COURSE RESTRICS: ", self.restrictions)
+        print("COURSE OVERLAPS: ", self.overlaps)
+        print("COURSE CONCURRENT: ", self.concurrent)
+        print("COURSE SAME AS: ", self.same_as)
+        print("COURSE GRADING: ", self.grading_option)
+        print("COURSE REPEATABILITY: ", self.repeatability)
+        print("COURSE CATEGORY: ", self.category)
         print(self.spillover)
 
 
@@ -68,7 +69,7 @@ def create_course(parsable: html.Element, courseID: str) -> Course:
                     temp = d.xpath('string()')
                     if i is 0:
                         cdesc = temp
-                    elif temp.startswith('Prerequisite:') or temp.startswith("Corequisite:"):
+                    elif temp.startswith('Prerequisite') or temp.startswith("Corequisite"):
                         preq = temp.strip()
                     elif temp.startswith('Restriction:'):
                         restric = temp
@@ -101,7 +102,7 @@ def get_course(courseid: str) -> Course:
     parsable = parsable_html(request_courses_section(section).content)
 
     try:
-        return create_course(parsable, courseid)
+        return create_course(parsable, courseid.upper())
     except Exception as e:
         print("ERROR: " + e)
 
@@ -133,12 +134,34 @@ def get_course_desc_list(parsable: html.Element, course: int) -> [html.Element]:
     return parsable.xpath('//div[@class="courseblock"][{c}]//div[@class="courseblockdesc"]/child::p'.\
                           format(c=course))
 
+def get_course_ids(letter: str) -> [str]:
+    '''gets a list of all the tags for a beginning letter'''
+    page = requests.get("http://catalogue.uci.edu/allcourses/", timeout=10)
+    soup = BeautifulSoup(page.content, "lxml")
+    ids = re.findall(r"(\(.*\))", soup.find(id=letter).find_next_sibling().text)
+    return [id.strip("()") for id in ids]
+
+
 
 if __name__ == "__main__":
-    user_input = input("Enter Course name: ")
+    # user_input = input("Enter Course name: ")
+    # while user_input != "stop":
+    #     get_course(user_input).print_course()
+    #     user_input = input("Enter Course name: ")
+
+    user_input = input("Enter Course Letter: ")
     while user_input != "stop":
-        get_course(user_input).print_course()
-        user_input = input("Enter Course name: ")
+        for id in get_course_ids(user_input):
+            print(id)
+        user_input = input("Enter Course Letter: ")
+
+    # pat = re.compile("(\(.*\))")
+    # page = requests.get("http://catalogue.uci.edu/allcourses/")
+    # soup = bs4.BeautifulSoup(page.content, "lxml")
+    # ids = re.findall(pat, soup.find(id="A").find_next_sibling().text)
+    #
+    # for id in ids:
+    #     print(id.strip("()"))
 
 
 

@@ -11,13 +11,26 @@ class UCICourses:
     @commands.guild_only()
     @commands.command()
     async def coursealias(self, ctx):
-        '''creates an alias - [alias] : [department]'''
-        message = ctx.message.content.split()
-        message = " ".join(message[1:len(message)])
-        message = message.split(" : ")
-        print(message)
-        self.bot.guild_data["cataloguealiases"][message[0]] = message[1]
-        self.bot.dump()
+        '''creates an alias - [alias] : [department]
+        aliases must be one word'''
+        if not re.match("^.* : .*$", ctx.message.content):
+            await ctx.send("**" + ctx.message.content + "**\n Incorrect format, please use -> [alias] : [department]")
+        else:
+            message = ctx.message.content.split()
+            message = " ".join(message[1:len(message)])
+            message = message.split(" : ")
+            # print(message)
+            self.bot.guild_data["cataloguealiases"][message[0].lower()] = message[1].lower()
+            self.bot.dump()
+
+    @commands.has_permissions(administrator=True)
+    @commands.guild_only()
+    @commands.command()
+    async def removealias(self, ctx, alias):
+        '''removes an alias - [alias]
+        aliases must be one word'''
+        del self.bot.guild_data["cataloguealiases"][alias.lower()]
+        await ctx.send(alias.lower(), "deleted")
 
     @commands.has_permissions(administrator=True)
     @commands.guild_only()
@@ -80,6 +93,26 @@ class UCICourses:
         except Exception as e:
             ctx.send("I dont know what happened but something broke, ping Lamp so he can figure it out and fix it")
             print("ERROR: " + e)
+
+    @commands.guild_only()
+    @commands.command()
+    async def getcoursetags(self, ctx, letter):
+        '''gets course tags for a specific starting letter'''
+        try:
+            course_ids = utilities.catalogue.get_course_ids(letter.upper())
+            ids = "\n".join(course_ids)
+            embedded = discord.Embed(title="**Course Tags for - " + letter.upper() + "**",
+                                     description=ids,
+                                     color=1938213)
+            # for id in course_ids:
+            #     embedded.add_field(name=id, value="\u200b", inline=False)
+            await ctx.send(embed=embedded)
+
+        except AttributeError as a:
+            embedded = discord.Embed(title="**NO TAGS FOUND FOR - " + letter.upper() + "**")
+            await ctx.send(embed=embedded)
+        except Exception as e:
+            print(e.__name__)
 
 
 def setup(bot):

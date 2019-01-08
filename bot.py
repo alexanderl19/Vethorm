@@ -46,7 +46,7 @@ async def on_ready() -> None:
     print("Logged in as: {user}".format(user=bot.user))
     print("__________________________________________")
     game = discord.Game(name="$help for help")
-    await bot.change_presence(game=game)
+    await bot.change_presence(activity=game)
     if bot.guild_data == {}:
         bot.guild_data = {
         'tags': {},
