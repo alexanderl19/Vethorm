@@ -54,7 +54,7 @@ def create_course(parsable: html.Element, courseID: str) -> Course:
     spillover = list()
 
     courses = get_class_titles(parsable)
-    reID = re.compile(r'^{}'.format(courseID))
+    reID = re.compile(r'^{}'.format(courseID + ' *\.'))
     try:
         for place, course in enumerate(courses, start=1):
             matching = reID.search(course.replace(u'\xa0', u' '))

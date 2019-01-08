@@ -32,7 +32,7 @@ class UCICourses:
         del self.bot.guild_data["cataloguealiases"][alias.lower()]
         await ctx.send(alias.lower(), "deleted")
 
-    @commands.has_permissions(administrator=True)
+    # @commands.has_permissions(administrator=True)
     @commands.guild_only()
     @commands.command()
     async def getaliases(self, ctx):
