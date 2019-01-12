@@ -62,6 +62,7 @@ class UCICourses:
                 split = course_to_find.split()
                 tag = " ".join(split[len(split) - 1:])
                 alias = " ".join(split[0:len(split) - 1])
+                alias = alias.lower()
                 real_course = self.bot.guild_data["cataloguealiases"][alias]
                 course_to_find = real_course + " " + tag
                 course = utilities.catalogue.get_course(course_to_find)
