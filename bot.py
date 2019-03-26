@@ -16,7 +16,6 @@ else:
     asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
 
 extensions = [
-    "addons.help",
     "addons.mod",
     "addons.onhandling",
     "addons.tags",
