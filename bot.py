@@ -16,6 +16,7 @@ else:
     asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
 
 extensions = [
+    "addons.alerts",
     "addons.mod",
     "addons.onhandling",
     "addons.tags",
@@ -48,6 +49,8 @@ async def on_ready() -> None:
     await bot.change_presence(activity=game)
     if bot.guild_data == {}:
         bot.guild_data = {
+        'alerts': {},
+        'alert_users': [],
         'tags': {},
         'cataloguealiases': {},
         'botlogs': None,
