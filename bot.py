@@ -17,6 +17,7 @@ else:
 
 extensions = [
     "addons.alerts",
+    "addons.error_handling",
     "addons.mod",
     "addons.onhandling",
     "addons.tags",
