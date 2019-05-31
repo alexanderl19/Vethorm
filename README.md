@@ -6,6 +6,7 @@ Source: [discord.py](https://github.com/Rapptz/discord.py)
 
 This branch is the work-in-progress of the rewrite. The original version of the discord bot was written and developed while I was learning python.
 The rewrite is an attempt to improve on the original with
+
 * cleaner code
 
    Many functions are not written in the cleanest way, nor is the structure of the project very clean.
@@ -25,8 +26,8 @@ The rewrite is an attempt to improve on the original with
 
    I plan to develop the bot so it can be added to more than just the UCI server and still use the functionality
 
-
 ### TODO List
+
 * create more testable portions of code
 * clean up messy functions
 * implement the addition of a database (MongoDB or Postgre)
@@ -35,5 +36,3 @@ The rewrite is an attempt to improve on the original with
   * Catalogue Scraper
   * Tags?
 * After database implementation look into doing batch inserts for user logs and performance gains vs complexity
-
-
