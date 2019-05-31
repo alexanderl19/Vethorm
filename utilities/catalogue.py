@@ -135,8 +135,8 @@ class UCICatalogueScraper:
                 grading = temp
             elif temp.startswith('Repeatability:'):
                 repeat = temp
-            elif is_category(temp):
-                cat = temp
+            # elif is_category(temp):
+            #     cat = temp
             else:
                 spillover.append(temp)
         return (cdesc, preq, restrict, overlap, concurr, same, grading, repeat, cat)
