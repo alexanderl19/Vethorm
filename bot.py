@@ -1,8 +1,14 @@
+# BUILT-INS
+
 import asyncio
 import json
 
+# THIRD PARTY LIBRARIES
+
 import discord
 from discord.ext import commands
+
+# PERSONAL IMPORTS
 
 import datamanagement
 import secret
@@ -15,7 +21,9 @@ except ImportError:
 else:
     asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
 
-extensions = [
+# GLOBAL CONSTANTS
+
+EXTENSIONS = [
     "addons.alerts",
     "utilities.error_handling",
     "addons.mod",
@@ -28,16 +36,6 @@ extensions = [
 prefix = ["$"]
 
 bot = commands.Bot(command_prefix=prefix)
-bot.guild_data = datamanagement.setup()
-
-
-def dump_guild_data() -> None:
-    '''dumps guild data from our .json file'''
-    with open("data/guild_data.json", 'w') as file:
-        json.dump(bot.guild_data, file, indent=5)
-
-
-bot.dump = dump_guild_data
 
 
 @bot.event
