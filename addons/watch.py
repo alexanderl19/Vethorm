@@ -1,5 +1,6 @@
 import datamanagement
 import discord
+import time
 from pathlib import Path
 from discord.ext import commands
 from discord.utils import find
@@ -13,6 +14,26 @@ class Watch:
             1: "individual",
             2: "all"
         }
+        self.counter = time.localtime()
+
+    @staticmethod
+    async def antalmanac(self, message):
+        if time.localtime() - self.counter < 86400:
+            return
+        if 'antalmanac' in message.content.lower():
+            self.counter = time.localtime()
+            await message.channel.send("Did someone say, *AntAlmanac*???")
+            time.sleep(3)
+            await message.channel.sent("**AntAlmanac!**\n \
+__AntAlmanac is the ultimate planning aid for UCI Anteaters!__\n \
+AntAlmanac allows you to plan your schedule with the best tools available. AntAlmanac provide lives updates about current enrollments in all your favorite classes.\n\n \
+Maybe you want to maybe multiple schedules to see what works best? ** *AntAlmanac* has you covered!**\n\n\
+Maybe you are worried you wont get a class best of your enrollment date? Check the history of the course and see how fast it was filled with *AntAlmanac*!\n\n\
+Oh no! Did you accidentally delete something. Dont worry *AntAlmanac* can undo your deletes with ctrl-z!\n\n\
+Not sure which professor you should take a class with? *AntAlmanac* has you covered with convienant links to faculty evals!\n\n\
+Remeber if you need to plan a schedule *AntAlmanac* has you covered! \
+            ")
+
 
     @commands.has_permissions(administrator=True)
     @commands.guild_only()
