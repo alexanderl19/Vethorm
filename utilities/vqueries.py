@@ -144,7 +144,6 @@ if __name__ == '__main__':
         asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
     loop = asyncio.get_event_loop()
     pool = loop.run_until_complete(init_database_connection())
-    loop.run_until_complete(test(pool))
     loop.run_until_complete(insert_server(pool, 1738, False))
     loop.run_until_complete(insert_user(pool, 14, 1738, False))
     loop.run_until_complete(insert_user_message(pool, 17, 14, 1738, 'big message', 'sent', datetime.now()))
