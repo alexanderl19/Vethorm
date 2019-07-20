@@ -29,18 +29,34 @@ async def init_database_connection() -> asyncpg.pool.Pool:
     """
     return await asyncpg.create_pool(host=secret.HOST, port=secret.PORT, user=secret.USERNAME, password=secret.PASSWORD, database=secret.DATABASE_NAME)
 
-async def insert_catalogue_alias(pool: asyncpg.pool.Pool, course_id: str, alias: str, guild_id: int):
+async def insert_catalogue_alias(pool: asyncpg.pool.Pool, department: str, alias: str, guild_id: int):
     """
         Inserts a new catalogue alias to the database
     """
     async with pool.acquire() as conn:
         async with conn.transaction():
-            await conn.execute(''' INSERT INTO catalogue_alias VALUES ($1, $2, $3)''', course_id, guild_id, alias)
+            await conn.execute(''' INSERT INTO catalogue_alias VALUES ($1, $2, $3)''', department, guild_id, alias)
+
+async def remove_catalogue_alias(pool: asyncpg.pool.Pool, department: str, guild_id: int):
+    """
+        Removes a department alias from the database
+    """
+    async with pool.acquire() as conn:
+        async with conn.transaction():
+            await conn.execute('''DELETE FROM catalogue_alias WHERE department = $1''', department)
 
 async def insert_channels(pool: asyncpg.pool.Pool, channel_id, guild_id, watching: bool = False):
     async with pool.acquire() as conn:
         async with conn.transaction():
             await conn.execute(''' INSERT INTO channels VALUES ($1, $2, $3) ''', channel_id, guild_id, watching)
+
+async def update_server_watch_mode(pool: asyncpg.pool.Pool, guild_id: int, watch_mode: bool):
+    """
+        Updates a server watch mode
+    """
+    async with pool.acquire() as conn:
+        async with conn.transaction():
+            await conn.execute(''' UPDATE channels SET watch_mode = $1 WHERE id = $2 ''', watch_mode, guild_id)
 
 async def insert_channel_message(pool: asyncpg.pool.Pool, message_id:int, channel_id: int, guild_id: int, message: str, message_type: str, date: datetime):
     async with pool.acquire() as conn:
@@ -54,6 +70,14 @@ async def insert_server(pool: asyncpg.pool.Pool, guild_id: int, watch_mode: bool
     async with pool.acquire() as conn:
         async with conn.transaction():
             await conn.execute(''' INSERT INTO servers VALUES ($1, $2) ''', guild_id, watch_mode)
+
+async def update_server_watch_mode(pool: asyncpg.pool.Pool, guild_id: int, watch_mode: bool):
+    """
+        Updates a server watch mode
+    """
+    async with pool.acquire() as conn:
+        async with conn.transaction():
+            await conn.execute(''' UPDATE servers SET watch_mode = $1 WHERE id = $2 ''', watch_mode, guild_id)
 
 async def insert_tag(pool: asyncpg.pool.Pool, tag: str, guild_id: int, info: str):
     async with pool.acquire() as conn:
@@ -74,10 +98,15 @@ async def insert_user(pool: asyncpg.pool.Pool, id: int, guild_id: int, watch_mod
             await conn.execute(''' INSERT INTO users VALUES ($1, $2, $3) ''', id, guild_id, watch_mode)
 
 async def request_catalogue_aliases(pool: asyncpg.pool.Pool) -> {str : str}:
+    """
+        Requests all the aliases from the database and returns as a dictionary
+
+        Return value {department : alias, ...}
+    """
     async with pool.acquire() as conn:
         stmt = await conn.prepare(''' SELECT * FROM catalogue_alias ''')
 
-        return {item['course_id'] : item['alias'] for item in await stmt.fetch()}
+        return {item['alias'] : item['department'] for item in await stmt.fetch()}
 
 async def request_channel_logs(pool: asyncpg.pool.Pool, channel_id: int, guild_id: int):
     async with pool.acquire() as conn:
@@ -144,10 +173,11 @@ if __name__ == '__main__':
         asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
     loop = asyncio.get_event_loop()
     pool = loop.run_until_complete(init_database_connection())
-    loop.run_until_complete(insert_server(pool, 1738, False))
-    loop.run_until_complete(insert_user(pool, 14, 1738, False))
-    loop.run_until_complete(insert_user_message(pool, 17, 14, 1738, 'big message', 'sent', datetime.now()))
-    loop.run_until_complete(insert_catalogue_alias(pool, 'I&C SCI', 'ICS', 1738))
-    result = loop.run_until_complete(request_user_logs(pool, 14, 1738))
-    print(result)
+    # loop.run_until_complete(insert_server(pool, 1738, False))
+    # loop.run_until_complete(insert_user(pool, 14, 1738, False))
+    # loop.run_until_complete(insert_user_message(pool, 17, 14, 1738, 'big message', 'sent', datetime.now()))
+    # loop.run_until_complete(insert_catalogue_alias(pool, 'I&C SCI', 'ICS', 1738))
+    # result = loop.run_until_complete(request_user_logs(pool, 14, 1738))
+    result = loop.run_until_complete(request_catalogue_aliases(pool)).items()
+    print(type(result))
 

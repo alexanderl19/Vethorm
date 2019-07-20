@@ -53,7 +53,7 @@ class Course:
         # }
         self.creation_date = time.time()
         self.id = course_tags['id']
-        self.courseID = course_tags['id']
+        self.course_id = course_tags['id']
         self.course_title = course_tags['title']
         self.course_units = course_tags['units']
         self.course_desc = course_tags['desc']
@@ -83,10 +83,10 @@ class Course:
         print(self.spillover)
 
     def __repr__(self):
-        return 'ID=(%s) Title=(%s) Units=(%s)' % (self.courseID, self.course_title, self.course_units)
+        return 'ID=(%s) Title=(%s) Units=(%s)' % (self.course_id, self.course_title, self.course_units)
 
     def __str__(self):
-        return "%s %s %s" % (self.courseID, self.course_title, self.course_units)
+        return "%s %s %s" % (self.course_id, self.course_title, self.course_units)
 
     def __eq__(self, right):
         return (self.courseID, self.course_title) == (right.courseID, right.course_title)
@@ -119,16 +119,19 @@ class UCICatalogueScraper:
             raise e
 
     @staticmethod
-    async def get_course_section(letter: str) -> [str]:
+    async def get_departments(letter: str) -> [str]:
         """
             Retrieves a list of all the course section identifers for a specific letter grouping
 
             Return value [str]
         """
-        page = requests.get("http://catalogue.uci.edu/allcourses/", timeout=10)
-        soup = BeautifulSoup(page.content, "lxml")
-        ids = re.findall(r"(\(.*\))", soup.find(id=letter).find_next_sibling().text)
-        return [id.strip("()") for id in ids]
+        def helper(tag: bs4.Tag):
+            return tag.has_attr('id') and letter in tag['id']
+
+        async with aiohttp.ClientSession() as session:
+            async with session.get(f'{_ALL_COURSES}') as rsp:
+                soup = BeautifulSoup(await rsp.text(), 'lxml')
+                return [item for item in re.findall(r'(\(.*\))', soup.find(helper).find_next_sibling().text)]
 
     # PRIVATE METHODS
 
@@ -157,8 +160,10 @@ class UCICatalogueScraper:
             'spillover' : []
         }
         course_block = await UCICatalogueScraper._get_title_and_desc(course_id.upper())
+        
         course_tags['id'], course_tags['title'], course_tags['units'] = UCICatalogueScraper._parse_title_block(course_block[0])
-        for piece in UCICatalogueScraper._extract_description_values(course_block[1]):
+        for count, piece in enumerate(UCICatalogueScraper._extract_description_values(course_block[1])):
+            piece = UCICatalogueScraper._parse_desc_block(count, piece)
             if piece[0] == 'spillover':
                 course_tags[piece[0]] = piece[1]
             else:
@@ -172,6 +177,7 @@ class UCICatalogueScraper:
 
             Return Value: (bs4.Tag, bs4.Tag)
         """
+        # print(course_id)
         split = course_id.split()
         section = " ".join(split[0:len(split) - 1])
         section = re.sub(r'/|&| ', "_", section).lower()
@@ -180,6 +186,7 @@ class UCICatalogueScraper:
         
         async with aiohttp.ClientSession() as session:
             async with session.get("%s/%s/" % (_ALL_COURSES, section)) as rsp:
+                # print(f'{_ALL_COURSES}/{section}')
                 soup = BeautifulSoup(await rsp.text(), 'lxml')
                 cblock = soup.find(helper)
                 return (cblock.find(attrs={'class':'courseblocktitle'}), cblock.find(attrs={'class':'courseblockdesc'}))
@@ -206,7 +213,7 @@ class UCICatalogueScraper:
         block = block.strip('. ')
         id_and_title = re.search(r'([^.]{1,15})\. +([A-Z0-9].+)', block)
         if id_and_title is None:
-            print(block)
+            # print(block)
             return ('', '', '')
         course_id = UCICatalogueScraper.__clean_string(id_and_title.groups()[0]).strip()
         course_title = UCICatalogueScraper.__clean_string(id_and_title.groups()[1]).strip()
@@ -253,23 +260,21 @@ class UCICatalogueScraper:
 
 
 class UCICatalogueCachedScraper(UCICatalogueScraper):
-    """
-        This course will cache a class for a specified amount of time
-        If the course hasn't been scrapped since the specified amount then the course will be rescraped
 
-        threshhold: this should be given in seconds, others can be given by multiplying the correct value
-
-        for minutes (threshhold * 60)
-
-        for hours   (threshhold * 3600)
-
-        for days    (threshhold * 86400)
-
-        recommend values for the threshhold are positive integers above 120, anything lower will most likely do nothing
-    """
     def __init__(self, threshhold: int):
         """
-            Finish Scrapper class
+            This course will cache a class for a specified amount of time
+            If the course hasn't been scrapped since the specified amount then the course will be rescraped
+
+            threshhold: this should be given in seconds, others can be given by multiplying the correct value
+
+            for minutes (threshhold * 60)
+
+            for hours   (threshhold * 3600)
+
+            for days    (threshhold * 86400)
+
+            recommend values for the threshhold are positive integers above 120, anything lower will most likely do nothing
         """
         self._threshhold = threshhold
         self._cache = {}
@@ -304,26 +309,29 @@ class UCICatalogueCachedScraper(UCICatalogueScraper):
             return self._cache[courseid]
 
 
+# if __name__ == '__main__':
+#     s = UCICatalogueScraper()
+#     asyncio.run(s.get_course_section('A'))
 
-if __name__ == '__main__':
-    s = UCICatalogueCachedScraper(360)
-    start = time.time()
-    course = asyncio.run(s.get_course('COMPSCI 171'))
-    print(time.time() - start)
-    start = time.time()
-    course = asyncio.run(s.get_course('COMPSCI 171'))
-    print(time.time() - start)
-    start = time.time()
-    course = asyncio.run(s.get_course('COMPSCI 171'))
-    print(time.time() - start)
-    s.reset_cache()
-    start = time.time()
-    course = asyncio.run(s.get_course('COMPSCI 171'))
-    print(time.time() - start)
-    start = time.time()
-    course = asyncio.run(s.get_course('COMPSCI 171'))
-    print(time.time() - start)
-    print(course)
+# if __name__ == '__main__':
+#     s = UCICatalogueCachedScraper(360)
+#     start = time.time()
+#     course = asyncio.run(s.get_course('COMPSCI 171'))
+#     print(time.time() - start)
+#     start = time.time()
+#     course = asyncio.run(s.get_course('COMPSCI 171'))
+#     print(time.time() - start)
+#     start = time.time()
+#     course = asyncio.run(s.get_course('COMPSCI 171'))
+#     print(time.time() - start)
+#     s.reset_cache()
+#     start = time.time()
+#     course = asyncio.run(s.get_course('COMPSCI 171'))
+#     print(time.time() - start)
+#     start = time.time()
+#     course = asyncio.run(s.get_course('COMPSCI 171'))
+#     print(time.time() - start)
+#     print(course)
     
 
 
