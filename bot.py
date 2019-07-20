@@ -1,17 +1,12 @@
-# BUILT-INS
+# LIBRARY IMPORTS
 
 import asyncio
 import json
 
-# THIRD PARTY LIBRARIES
+# THIRD PARTY IMPORTS
 
 import discord
 from discord.ext import commands
-
-# PERSONAL IMPORTS
-
-import datamanagement
-import secret
 
 try:
     import uvloop
@@ -21,58 +16,53 @@ except ImportError:
 else:
     asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
 
-# GLOBAL CONSTANTS
+# PROJECTS IMPORTS
 
-EXTENSIONS = [
-    "addons.alerts",
-    "utilities.error_handling",
-    "addons.mod",
-    "addons.onhandling",
-    "addons.tags",
-    "addons.ucicourses",
-    "addons.watch"
+import utilities.secret as secret
+import utilities.vqueries as vquery
+import utilities.catalogue as catalogue
+
+# CONSTANTS
+
+extensions = [
+    "cogs.courses"
 ]
 
-prefix = ["$"]
-
+prefix = ['$']
 bot = commands.Bot(command_prefix=prefix)
-
 
 @bot.event
 async def on_ready() -> None:
-    '''runs operations when the bot is ready'''
-    """runs operations when the bot is ready"""
-    print("Logged in as: {user}".format(user=bot.user))
-    print("__________________________________________")
-    game = discord.Game(name="$help for help")
+    print(f'Logged in as: {bot.user}')
+    print('__________________________________________')
+    game = discord.Game(name='$help for help')
     await bot.change_presence(activity=game)
-    if bot.guild_data == {}:
-        bot.guild_data = {
-        'alerts': {},
-        'alert_users': [],
-        'tags': {},
-        'cataloguealiases': {},
-        'botlogs': None,
-        'watchmode': False,
-        'channelwatch': False,
-        'watching': []
-        }
-        bot.dump()
-
+    
 
 @bot.event
 async def on_message(message):
+    # try:
+    #     await vquery.insert_server(bot.pool, message.guild.id)
+    # except Exception as e:
+    #     print(e)
     if message.author.bot:
         return
     await bot.process_commands(message)
 
+async def load():
+    bot.pool = await vquery.init_database_connection()
+    bot.courses = catalogue.UCICatalogueCachedScraper(7*86400)
+    bot.aliases = await vquery.request_catalogue_aliases(bot.pool)
+
 if __name__ == "__main__":
+    from pathlib import Path
+    print(Path.cwd())
     for extension in extensions:
         try:
             bot.load_extension(extension)
         except Exception as e:
             print("Failed to load extension {exten}\n"
-                  "ERROR - {error_name}: {error}".format(exten=extension, error_name=type(e).__name__, error=e))
-
+                  "ERROR - {error_name}: {error}\n".format(exten=extension, error_name=type(e).__name__, error=e))
+    asyncio.get_event_loop().run_until_complete(load())
     bot.run(secret.BOT_TOKEN)
 
