@@ -38,12 +38,10 @@ class Courses(commands.Cog):
             department = args[0].upper()
             alias = args[1].upper()
         try:
-            await vquery.insert_catalogue_alias(self.bot.pool, department, alias, ctx.guild.id)
+            await vquery.insert_catalogue_alias(self.bot, department, alias, ctx.guild.id)
             await ctx.send(f'**ALIAS CREATE**\nAlias -> {department}\nDepartment -> {alias}')
         except Exception as e:
             await ctx.send(f'Bot Brok {e}')
-        else:
-            self.bot.aliases[alias] = department
 
     @commands.has_permissions(administrator=True)
     @commands.guild_only()
@@ -57,8 +55,7 @@ class Courses(commands.Cog):
         try:
             department = department.upper()
             if department in self.bot.aliases:
-                await vquery.remove_catalogue_alias(self.bot.pool, department.upper(), ctx.guild.id)
-                del self.bot.aliases[department]
+                await vquery.remove_catalogue_alias(self.bot, department.upper(), ctx.guild.id)
                 await ctx.send(f'{department} removed from aliases')
             else:
                 await ctx.send(f'{department} alias does not exist, make sure you are removing the alias and not the department')
@@ -76,7 +73,7 @@ class Courses(commands.Cog):
             USAGE: getaliases
         """
         embed = discord.Embed(title='Course Aliases')
-        for key, value in (await vquery.request_catalogue_aliases(self.bot.pool)).items():
+        for key, value in (await vquery.request_catalogue_aliases(self.bot)).items():
             embed.add_field(name=f'Department = {value}', value=f'Alias = {key}', inline=False)
         await ctx.send(embed=embed)
 
