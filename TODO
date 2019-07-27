@@ -5,3 +5,7 @@ error messages,
 confirmation messages,
 etc
 Add a remind me feature
+
+
+7/21 UPDATE INSERT/REMOVE FUNCTIONS
+INSERT REMOVES SHOULD UPDATE THE BOT VARIABLE CACHES

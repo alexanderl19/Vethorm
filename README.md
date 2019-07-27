@@ -36,3 +36,33 @@ The rewrite is an attempt to improve on the original with
   * Catalogue Scraper
   * Tags?
 * After database implementation look into doing batch inserts for user logs and performance gains vs complexity
+
+
+# Vethorm
+This is a bot for a school discord server
+
+## Setup
+
+Install postgres
+
+> sudo apt install postgresql postgresql-contrib
+
+Create user
+
+> sudo -u postgres createuser --interactive
+User should be "vethorm" and a superuser
+
+Create database
+
+> sudo -u postgres createdb vethorm
+
+Add user
+
+> sudo adduser vethorm
+
+Log with
+
+> sudo -i -u vethorm
+> psql
+or
+> sudo -u vethorm psql
