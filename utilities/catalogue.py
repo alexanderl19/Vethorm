@@ -7,7 +7,6 @@ import time
 # THIRD PARTY IMPORTS
 
 import aiohttp
-import requests
 
 from lxml import html
 import bs4
