@@ -157,18 +157,23 @@ async def remove_tag(bot: Bot, tag: str, guild_id: int):
             await conn.execute(''' DELETE FROM tags WHERE guild_id = $1 AND tag = $2 ''', guild_id, tag)
             del bot.Vtags[tag]
 
-async def request_tags(bot: Bot, guild_id: int) -> {str : str}:
+async def request_tags(bot: Bot) -> {int: dict}:
     """
         Requests the tags from the database and returns them as a dictionary
+
+        {
+            guild_id : {tag : info, ...},
+            ...
+        }
     """
     async with bot.Vpool.acquire() as conn:
         stmt = await conn.prepare(''' 
-            SELECT * FROM tags 
-            WHERE guild_id = $1 
+            SELECT * FROM tags
             ''')
-        return { item['tag'] : item['info']
-            for item in await stmt.fetch(guild_id)
-        }
+        tags = defaultdict(dict)
+        for item in await stmt.fetch():
+            tags[item['guild_id']][item['tag']] = item['info']
+        return tags
 
 # User functions
 async def insert_user(bot: Bot, id: int, guild_id: int, watch_mode: bool = False):
@@ -186,7 +191,7 @@ async def insert_user_message(bot: Bot, message_id:int, user_id: int, guild_id: 
     """
     async with bot.Vpool.acquire() as conn:
         async with conn.transaction():
-            await conn.execute(''' INSERT INTO user_logs VALUES ($1, $2, $3, $4, $5, $6) ''', message_id, user_id, guild_id, message, message_type, date)
+            await conn.execute(''' INSERT INTO user_logs(message_id, user_id, guild_id, message, mtype, date) VALUES ($1, $2, $3, $4, $5, $6) ''', message_id, user_id, guild_id, message, message_type, date)
 
 async def request_user_logs(bot: Bot, user_id: int, guild_id: int) -> [dict]:
     """
