@@ -55,14 +55,14 @@ class OnHandling(commands.Cog):
 
             If the server has watching enabled then the edit is logged for the user
         """
-        if message.guild.id not in self.bot.Vusers or message.author.id not in self.bot.Vusers[message.guild.id]:
-            await vquery.insert_user(self.bot, message.author.id, message.guild.id)
-        if self.bot.Vservers[message.guild.id]['watch_mode']:
-            await self._user_logging(message, 'Edit: before', message.edited_at)
-            await self._user_logging(message, 'Edit: after', message.edited_at)
+        if before.guild.id not in self.bot.Vusers or before.author.id not in self.bot.Vusers[before.guild.id]:
+            await vquery.insert_user(self.bot, before.author.id, before.guild.id)
+        if self.bot.Vservers[before.guild.id]['watch_mode']:
+            await self._user_logging(before, 'Edit: before', before.edited_at)
+            await self._user_logging(after, 'Edit: after', after.edited_at)
 
     @commands.Cog.listener()
-    async def on_message_delete()
+    async def on_message_delete(self, message):
         """
             Checks to see if the user has been added to the database and adds them if not
 
