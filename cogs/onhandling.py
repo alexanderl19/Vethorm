@@ -73,5 +73,12 @@ class OnHandling(commands.Cog):
         if self.bot.Vservers[message.guild.id]['watch_mode']:
             await self._user_logging(message, 'Deletion', message.created_at)
 
+    @commands.Cog.listener()
+    async def on_command_error(self, ctx, error):
+        SHIT BROKE BRUH
+        print(self.bot.owner_id)
+        owner = await self.bot.fetch_user(self.bot.owner_id)
+        await ctx.send(f'Error: {error}\n{owner.mention} - Error type: {error')
+
 def setup(bot):
     bot.add_cog(OnHandling(bot))
