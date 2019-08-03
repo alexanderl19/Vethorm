@@ -1,5 +1,6 @@
 data/
 secret.py
+postgre_files/dev_credentials
 
 # VSCode
 .vscode
