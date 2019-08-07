@@ -19,7 +19,8 @@ except ModuleNotFoundError:
 
 # CONSTANTS
 
-
+# Update functions to match new schema
+# TODO: add msg_type check for original, edit, deletion
 
 # FUNCTIONS
 
@@ -90,16 +91,16 @@ async def request_channel_logs(bot: Bot, channel_id: int, guild_id: int) -> [dic
         stmt = await conn.prepare(''' 
             SELECT * 
             FROM channel_logs 
-            WHERE channel_id = $1 AND guild_id = $2
+            WHERE chan_id = $1 AND guild_id = $2
             ORDER BY date DESC
             ''')
         return [{
             'message_id'    : item['message_id'],
-            'channel_id'    : item['channel_id'],
+            'channel_id'    : item['chan_id'],
             'guild_id'      : item['guild_id'],
-            'message'       : item['message'],
-            'message_type'  : item['mtype'],
-            'date'          : item['date']
+            'msg'       : item['msg'],
+            'msg_type'  : item['msg_type'],
+            'msg_date'          : item['msg_date']
         } for item in await stmt.fetch(channel_id, guild_id)]
 
 # Server functions
