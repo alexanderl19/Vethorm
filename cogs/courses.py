@@ -30,10 +30,10 @@ class Courses(commands.Cog):
         """
             creates an alias - aliases must be a single word
 
-            coursealias <alias> <department>
+            USAGE: coursealias <alias> <department>
         """
         if len(args) != 2:
-            await ctx.send(f'**{ctx.message.content}**\nIncorrect format, please use `$courseinfo <department> <alias>`\nIf your arg contains a space please put it in quotes, "de part ment"')
+            await ctx.send(f'**{ctx.message.content}**\nIncorrect format, please use `$courseinfo <department> <alias>`\nEncapsulate arguments with spaces in quotes')
         else:
             department = args[0].upper()
             alias = args[1].upper()
@@ -73,7 +73,7 @@ class Courses(commands.Cog):
             USAGE: getaliases
         """
         embed = discord.Embed(title='Course Aliases')
-        for key, value in (await vquery.request_catalogue_aliases(self.bot)).items():
+        for key, value in self.bot.Valiases:
             embed.add_field(name=f'Department = {value}', value=f'Alias = {key}', inline=False)
         await ctx.send(embed=embed)
 
