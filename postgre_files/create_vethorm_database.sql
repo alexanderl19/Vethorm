@@ -1,55 +1,49 @@
-CREATE TABLE servers(
-    id BIGINT PRIMARY KEY,
+CREATE TABLE guilds (
+    guild_id BIGINT PRIMARY KEY,
+    -- TODO: currently flag for all users + channels, switch to separate flags
     watch_mode BOOLEAN
 );
 
 CREATE TABLE users (
-    id BIGINT PRIMARY KEY,
-    guild_id BIGINT REFERENCES servers(id),
-    watching BOOLEAN
+    user_id BIGINT PRIMARY KEY,
+    guild_id BIGINT REFERENCES guilds(guild_id)
 );
 
 CREATE TABLE channels (
-    id BIGINT PRIMARY KEY,
-    guild_id BIGINT REFERENCES servers(id),
+    chan_id BIGINT PRIMARY KEY,
+    guild_id BIGINT REFERENCES guilds(guild_id),
     watching BOOLEAN
 );
 
 CREATE TABLE user_logs (
-    aid BIGINT PRIMARY KEY AUTO_INCREMENT,
+    -- u_log_id BIGINT PRIMARY KEY AUTO_INCREMENT,
     message_id BIGINT,
-    user_id BIGINT REFERENCES users(id),
-    guild_id BIGINT REFERENCES servers(id),
-    message VARCHAR(2000),
-    mtype VARCHAR(100),
-    date TIMESTAMP
+    user_id BIGINT REFERENCES users(user_id),
+    guild_id BIGINT REFERENCES guilds(guild_id),
+    msg VARCHAR(2000),
+    msg_type VARCHAR(100),
+    msg_date TIMESTAMP
 );
 
-DROP TABLE user_logs
-
 CREATE TABLE channel_logs (
-    message_id BIGINT PRIMARY KEY,
-    channel_id BIGINT REFERENCES channels(id),
-    guild_id BIGINT REFERENCES servers(id),
-    message VARCHAR(2000),
-    mtype VARCHAR(100),
-    date TIMESTAMP
+    -- c_log_id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    message_id BIGINT,
+    channel_id BIGINT REFERENCES channels(chan_id),
+    guild_id BIGINT REFERENCES guilds(guild_id),
+    msg VARCHAR(2000),
+    msg_type VARCHAR(100),
+    msg_date TIMESTAMP
 );
 
 CREATE TABLE tags (
     tag VARCHAR(128) PRIMARY KEY,
-    guild_id BIGINT REFERENCES servers(id),
+    guild_id BIGINT REFERENCES guilds(guild_id),
     info VARCHAR(2000)
 );
 
-CREATE TABLE watchlist (
-    guild_id BIGINT REFERENCES servers(id),
-    user_id BIGINT REFERENCES users(id),
-    PRIMARY KEY (guild_id, user_id)
-);
-
 CREATE TABLE catalogue_alias (
-    course_id VARCHAR(1024) PRIMARY KEY,
-    guild_id BIGINT REFERENCES servers(id),
+    -- Currently only allows one alias
+    department VARCHAR(1024) PRIMARY KEY,
+    guild_id BIGINT REFERENCES guilds(guild_id),
     alias VARCHAR(1024)
 );
