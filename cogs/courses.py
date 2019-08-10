@@ -15,7 +15,7 @@ import utilities.catalogue as catalogue
 
 # CONSTANTS
 
-
+_DEBUG = True
 
 #
 
@@ -57,6 +57,7 @@ class Courses(commands.Cog):
 
             USAGE: removealias <alias> 
         """
+        print(self.bot.Valiases)
         try:
             department = department.upper()
 
@@ -96,10 +97,14 @@ class Courses(commands.Cog):
         try:
             start = time.time()
             department = (' '.join( args[:len(args) - 1] )).upper()
-            if department in self.bot.aliases:
-                department = self.bot.aliases[department]
-            course = await self.bot.courses.get_course(' '.join([department, args[len(args) - 1]]))
+
+            if ctx.guild.id in self.bot.Valiases and department in self.bot.Valiases[ctx.guild.id]:
+                department = self.bot.Valiases[ctx.guild.id][department]
+            course = await self.bot.Vcourses.get_course(' '.join([department, args[len(args) - 1]]))
+
             end = time.time()
+        except AttributeError:
+            await ctx.send(f'`{" ".join([department, args[len(args) - 1]])}` was not found in the course catalogue.')
         except Exception as e:
             await ctx.send(f'Bot Brok {e}')
         else:
@@ -112,7 +117,7 @@ class Courses(commands.Cog):
                 if course.restrictions is not None:
                     embed.add_field(name='Restrictions', value=course.restrictions.rstrip('Restrictions'))
                 if course.overlaps is not None:
-                    embed.add_field(name='Course Overlaps', value=course.overlap, inline=False)
+                    embed.add_field(name='Course Overlaps', value=course.overlaps, inline=False)
                 if course.concurrent is not None:
                     embed.add_field(name='Course Concurrent', value=course.concurrent, inline=False)
                 if course.same_as is not None:
@@ -134,8 +139,9 @@ class Courses(commands.Cog):
 
             USAGE: getdepartments <letter>
         """
+        print(f'Letter: {letter.upper()}')
         try:
-            embed = discord.Embed(title=f'**Course Tags for - {letter.upper()}**', description='\n'.join( await self.bot.courses.get_departments( letter.upper() ) ), color=1938213)
+            embed = discord.Embed(title=f'**Course Tags for - {letter.upper()}**', description='\n'.join( await self.bot.Vcourses.get_departments( letter.upper() ) ), color=1938213)
             
             await ctx.send(embed=embed)
         except Exception:

@@ -42,11 +42,11 @@ async def insert_catalogue_alias(bot: Bot, department: str, alias: str, guild_id
         async with conn.transaction():
             await conn.execute(''' 
             INSERT INTO catalogue_alias 
-            VALUES ($1, $2, $3)''', department.upper(), guild_id, alias)
+            VALUES ($1, $2, $3)''', department.upper(), guild_id, alias.upper())
 
             bot.Valiases[guild_id][alias] = department
 
-async def remove_catalogue_alias(bot: Bot, department: str, guild_id: int):
+async def remove_catalogue_alias(bot: Bot, alias: str, guild_id: int):
     """
         Removes a department alias from the database
     """
@@ -54,16 +54,18 @@ async def remove_catalogue_alias(bot: Bot, department: str, guild_id: int):
         async with conn.transaction():
             await conn.execute('''
             DELETE FROM catalogue_alias 
-            WHERE guild_id = $1 AND department = $2''', guild_id, department.upper())
+            WHERE guild_id = $1 AND alias = $2''', guild_id, alias.upper())
 
-            to_delete = None
+            del bot.Valiases[guild_id][alias.upper()]
+
+            # to_delete = None
             
-            for alias, dep in bot.Valiases[guild_id].items():
-                if department == dep:
-                    to_delete = alias
+            # for alias, dep in bot.Valiases[guild_id].items():
+            #     if department == dep:
+            #         to_delete = alias
 
-            if to_delete is not None:
-                del bot.Valiases[guild_id][alias]
+            # if to_delete is not None:
+            #     del bot.Valiases[guild_id][alias]
 
 async def request_catalogue_aliases(bot: Bot) -> {str : str}:
     """

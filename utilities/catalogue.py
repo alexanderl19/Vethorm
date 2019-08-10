@@ -130,7 +130,7 @@ class UCICatalogueScraper:
         async with aiohttp.ClientSession() as session:
             async with session.get(f'{_ALL_COURSES}') as rsp:
                 soup = BeautifulSoup(await rsp.text(), 'lxml')
-                return [item for item in re.findall(r'(\(.*\))', soup.find(helper).find_next_sibling().text)]
+                return [item.strip('()') for item in re.findall(r'(\(.*\))', soup.find(helper).find_next_sibling().text)]
 
     # PRIVATE METHODS
 
@@ -308,9 +308,9 @@ class UCICatalogueCachedScraper(UCICatalogueScraper):
             return self._cache[courseid]
 
 
-# if __name__ == '__main__':
-#     s = UCICatalogueScraper()
-#     asyncio.run(s.get_course_section('A'))
+if __name__ == '__main__':
+    s = UCICatalogueScraper()
+    print(asyncio.run(s.get_departments('A')))
 
 # if __name__ == '__main__':
 #     s = UCICatalogueCachedScraper(360)
