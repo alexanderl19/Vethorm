@@ -37,8 +37,13 @@ class Courses(commands.Cog):
         else:
             department = args[0].upper()
             alias = args[1].upper()
+
+        guild_id = ctx.guild.id
+        if guild_id in self.bot.Vguilds and department in self.bot.Valiases[guild_id]:
+            await ctx.send(f'Error: {department} already has alias {self.bot.Valiases[guild_id][department]}')
+
         try:
-            await vquery.insert_catalogue_alias(self.bot, department, alias, ctx.guild.id)
+            await vquery.insert_catalogue_alias(self.bot, department, alias, guild_id)
             await ctx.send(f'**ALIAS CREATE**\nAlias -> {department}\nDepartment -> {alias}')
         except Exception as e:
             await ctx.send(f'Bot Brok {e}')
@@ -54,7 +59,8 @@ class Courses(commands.Cog):
         """
         try:
             department = department.upper()
-            if department in self.bot.aliases:
+
+            if department in self.bot.Valiases[ctx.guild.id]:
                 await vquery.remove_catalogue_alias(self.bot, department.upper(), ctx.guild.id)
                 await ctx.send(f'{department} removed from aliases')
             else:
@@ -62,7 +68,6 @@ class Courses(commands.Cog):
         except Exception as e:
             await ctx.send(f'Bot Brok {e}')
         
-
     # @commands.has_permissions(administrator=True)
     @commands.guild_only()
     @commands.command()
@@ -73,7 +78,7 @@ class Courses(commands.Cog):
             USAGE: getaliases
         """
         embed = discord.Embed(title='Course Aliases')
-        for key, value in self.bot.Valiases:
+        for key, value in self.bot.Valiases[ctx.guild.id].items():
             embed.add_field(name=f'Department = {value}', value=f'Alias = {key}', inline=False)
         await ctx.send(embed=embed)
 
@@ -133,8 +138,8 @@ class Courses(commands.Cog):
             embed = discord.Embed(title=f'**Course Tags for - {letter.upper()}**', description='\n'.join( await self.bot.courses.get_departments( letter.upper() ) ), color=1938213)
             
             await ctx.send(embed=embed)
-        except Exception as e:
-            await ctx.send(f'getdepartments requires a given letter\nExample: getdepartments A')
+        except Exception:
+            await ctx.send(f'USAGE: getdepartments <Letter>\nExample: `getdepartments A`')
 
 
 def setup(bot):

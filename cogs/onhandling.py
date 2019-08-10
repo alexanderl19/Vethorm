@@ -43,9 +43,11 @@ class OnHandling(commands.Cog):
             If the server has watching enabled then the message is logged for the user
         """
         # This first check should probably be registered as a check to the bot later and used as a decorator
-        if message.guild.id not in self.bot.Vusers or message.author.id not in self.bot.Vusers[message.guild.id]:
+        if message.guild.id not in self.bot.Vguilds:
+            await vquery.insert_guild(self.bot, message.guild.id)
+        if message.author.id not in self.bot.Vusers[message.guild.id]:
             await vquery.insert_user(self.bot, message.author.id, message.guild.id)
-        if self.bot.Vservers[message.guild.id]['watch_mode']:
+        if self.bot.Vguilds[message.guild.id]['watch_mode']:
             await self._user_logging(message, 'Original', message.created_at)
 
     @commands.Cog.listener()
@@ -57,7 +59,7 @@ class OnHandling(commands.Cog):
         """
         if before.guild.id not in self.bot.Vusers or before.author.id not in self.bot.Vusers[before.guild.id]:
             await vquery.insert_user(self.bot, before.author.id, before.guild.id)
-        if self.bot.Vservers[before.guild.id]['watch_mode']:
+        if self.bot.Vguilds[before.guild.id]['watch_mode']:
             await self._user_logging(before, 'Edit: before', before.edited_at)
             await self._user_logging(after, 'Edit: after', after.edited_at)
 
@@ -70,7 +72,7 @@ class OnHandling(commands.Cog):
         """
         if message.guild.id not in self.bot.Vusers or message.author.id not in self.bot.Vusers[message.guild.id]:
             await vquery.insert_user(self.bot, message.author.id, message.guild.id)
-        if self.bot.Vservers[message.guild.id]['watch_mode']:
+        if self.bot.Vguilds[message.guild.id]['watch_mode']:
             await self._user_logging(message, 'Deletion', message.created_at)
 
     # TODO: Create method of catching errors so I can debug issues while in beta

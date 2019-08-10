@@ -50,9 +50,11 @@ class Vethorm(commands.Bot):
         # dictionary course aliases
         self.Valiases = vrun(vquery.request_catalogue_aliases(self))
         # dictionary of servers
-        self.Vservers = vrun(vquery.request_servers(self))
+        self.Vguilds = vrun(vquery.request_guilds(self))
         # diction of users by guild id
         self.Vusers = vrun(vquery.request_users(self))
+        # dictionary of channels by guild id
+        self.Vchans = vrun(vquery.request_channels(self))
         # dictionary of tags by server
         self.Vtags = vrun(vquery.request_tags(self))
 
@@ -70,8 +72,8 @@ class Vethorm(commands.Bot):
         await self.change_presence(activity=game)
         # load guild and insert new ones
         for guild in self.guilds:
-            if guild.id not in self.Vservers:
-                await vquery.insert_server(self, guild.id)
+            if guild.id not in self.Vguilds:
+                await vquery.insert_guild(self, guild.id)
         print('==== Guilds Loaded ====')
 
     async def on_message(self, message):
@@ -80,8 +82,8 @@ class Vethorm(commands.Bot):
         await self.process_commands(message)
 
     async def on_guild_join(self, guild):
-        if guild.id not in self.Vservers:
-            await vquery.insert_server(self, guild.id)
+        if guild.id not in self.Vguilds:
+            await vquery.insert_guild(self, guild.id)
     
     def run(self):
         super().run(secret.BOT_TOKEN, reconnect=True)
