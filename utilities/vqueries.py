@@ -118,7 +118,10 @@ async def insert_channel_message(bot: Bot, message_id:int, chan_id: int, guild_i
     """
     async with bot.Vpool.acquire() as conn:
         async with conn.transaction():
-            await conn.execute(''' INSERT INTO user_logs VALUES ($1, $2, $3, $4, $5, $6) ''', message_id, chan_id, guild_id, message, message_type, date)
+            await conn.execute(''' 
+                INSERT INTO channel_logs 
+                VALUES ($1, $2, $3, $4, $5, $6) ''', message_id, chan_id, guild_id, message, message_type, date)
+            print(f'INSERT: {message_id}, {chan_id}, {guild_id}, {message}, {message_type}, {date}')
 
 async def request_channel_logs(bot: Bot, chan_id: int, guild_id: int) -> [dict]:
     """
@@ -129,7 +132,7 @@ async def request_channel_logs(bot: Bot, chan_id: int, guild_id: int) -> [dict]:
             SELECT * 
             FROM channel_logs 
             WHERE chan_id = $1 AND guild_id = $2
-            ORDER BY date DESC
+            ORDER BY msg_date DESC
             ''')
         return [{
             'message_id'    : item['message_id'],
@@ -192,7 +195,7 @@ async def update_guild_watch_mode(bot: Bot, guild_id: int, watch_mode: bool):
         async with conn.transaction():
             await conn.execute(''' UPDATE guilds SET watch_mode = $1 WHERE guild_id = $2 ''', watch_mode, guild_id)
 
-            bot.Vguilds[guild_id] = watch_mode
+            bot.Vguilds[guild_id]['watch_mode'] = watch_mode
 
 async def request_guilds(bot: Bot) -> {int: dict}:
     """
@@ -281,7 +284,11 @@ async def insert_user_message(bot: Bot, message_id:int, user_id: int, guild_id: 
     """
     async with bot.Vpool.acquire() as conn:
         async with conn.transaction():
-            await conn.execute(''' INSERT INTO user_logs(message_id, user_id, guild_id, msg, msg_type, msg_date) VALUES ($1, $2, $3, $4, $5, $6) ''', message_id, user_id, guild_id, message, message_type, date)
+            await conn.execute(''' 
+                INSERT INTO user_logs(message_id, user_id, guild_id, msg, msg_type, msg_date) 
+                VALUES ($1, $2, $3, $4, $5, $6) 
+                ''', message_id, user_id, guild_id, message, message_type, date)
+            # print(f'INSERT: {message_id}, {user_id}, {guild_id}, {message}, {message_type}, {date}')
 
 async def request_user_logs(bot: Bot, user_id: int, guild_id: int) -> [dict]:
     """
@@ -299,7 +306,7 @@ async def request_user_logs(bot: Bot, user_id: int, guild_id: int) -> [dict]:
         stmt = await conn.prepare(''' 
             SELECT * FROM user_logs 
             WHERE user_id = $1 AND guild_id = $2 
-            ORDER BY date DESC
+            ORDER BY msg_date DESC
             ''')
         return [{
             'message_id'    : item['message_id'],
