@@ -121,7 +121,7 @@ async def insert_channel_message(bot: Bot, message_id:int, chan_id: int, guild_i
             await conn.execute(''' 
                 INSERT INTO channel_logs 
                 VALUES ($1, $2, $3, $4, $5, $6) ''', message_id, chan_id, guild_id, message, message_type, date)
-            print(f'INSERT: {message_id}, {chan_id}, {guild_id}, {message}, {message_type}, {date}')
+            # print(f'INSERT: {message_id}, {chan_id}, {guild_id}, {message}, {message_type}, {date}')
 
 async def request_channel_logs(bot: Bot, chan_id: int, guild_id: int) -> [dict]:
     """
