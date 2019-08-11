@@ -61,7 +61,6 @@ class TestVqueryMethods(unittest.TestCase):
             print(self.bot.Vusers)
             raise e
 
-
     def test_catalogue(self):
         self.run( vquery.insert_guild(self.bot, 1) )
 
@@ -78,7 +77,7 @@ class TestVqueryMethods(unittest.TestCase):
             print(self.bot.Valiases)
             raise e
         finally:
-            self.run( vquery.remove_catalogue_alias(self.bot, 'I&C SCI', 1) )
+            self.run( vquery.remove_catalogue_alias(self.bot, 'ics', 1) )
             self.run( vquery.remove_guild(self.bot, 1) )
 
             results = self.run( vquery.request_catalogue_aliases(self.bot) )
