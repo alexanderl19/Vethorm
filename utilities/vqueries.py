@@ -233,7 +233,7 @@ async def remove_tag(bot: Bot, tag: str, guild_id: int):
     async with bot.Vpool.acquire() as conn:
         async with conn.transaction():
             await conn.execute(''' DELETE FROM tags WHERE guild_id = $1 AND tag = $2 ''', guild_id, tag)
-            del bot.Vtags[tag]
+            del bot.Vtags[guild_id][tag]
 
 async def request_tags(bot: Bot) -> {int: dict}:
     """

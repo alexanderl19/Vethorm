@@ -29,14 +29,26 @@ class Tags(commands.Cog):
     @commands.guild_only()
     @commands.command()   
     async def tag(self, ctx, name):
-        if ctx.guild.id in self.bot.Vservers and name in self.bot.Vtags[ctx.guild.id]:
+        """
+            Fetches a tag by name
+            USAGE: tag <name>
+        """
+        print(self.bot.Vtags)
+        if ctx.guild.id in self.bot.Vguilds and name in self.bot.Vtags[ctx.guild.id]:
             await ctx.send(self.bot.Vtags[ctx.guild.id][name])
+        else:
+            await ctx.send(f'Tag `{name}` doesn\'t exist')
 
     @commands.has_permissions(administrator=True)
     @commands.guild_only()
     @commands.command()
-    async def ctag(self, ctx, name, info):
-        if ctx.guild.id in self.bot.Vservers and name in self.bot.Vtags[ctx.guild.id]:
+    async def ctag(self, ctx, name, *args):
+        """
+            Creates a tag by a name
+            USAGE: ctag <name> <tag information>
+        """
+        info = ' '.join(args)
+        if ctx.guild.id in self.bot.Vguilds and name in self.bot.Vtags[ctx.guild.id]:
             await ctx.send(f'{name} is already a tag, delete the tag to change it')
         else:
             await vquery.insert_tag(self.bot, name, ctx.guild.id, info)
@@ -50,17 +62,25 @@ class Tags(commands.Cog):
     @commands.guild_only()
     @commands.command()
     async def dtag(self, ctx, name):
-        if ctx.guild.id in self.bot.Vservers and name in self.bot.Vtags[ctx.guild.id]:
+        """
+            Deletes a tag by its name
+            USAGE: dtag <name>
+        """
+        if ctx.guild.id in self.bot.Vguilds and name in self.bot.Vtags[ctx.guild.id]:
             await vquery.remove_tag(self.bot, name, ctx.guild.id)
-            await ctx.send(f'Tag ({name}) deleted')
+            await ctx.send(f'Tag `{name}` deleted')
         else:
-            await ctx.send(f'Tag ({name}) doesn\'t exist')
+            await ctx.send(f'Tag `{name}` doesn\'t exist')
 
     @commands.has_permissions(administrator=True)
     @commands.guild_only()
     @commands.command()
     async def ltags(self, ctx):
-        if ctx.guild.id in self.bot.Vservers:
+        """
+            Lists all tags
+            USAGE: ltags
+        """
+        if ctx.guild.id in self.bot.Vguilds:
             embed = discord.Embed(title='Tags')
             for name, info in self.bot.Vtags[ctx.guild.id].items():
                 embed.add_field(name=name, value=info)
