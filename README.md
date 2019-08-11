@@ -43,7 +43,7 @@ This is a bot for a school discord server
 
 ## Setup
 
-Install postgres
+### Install postgres
 
 > sudo apt install postgresql postgresql-contrib
 
@@ -66,3 +66,42 @@ Log with
 > psql
 or
 > sudo -u vethorm psql
+
+### Create Postgre database
+
+This command assumes you are in the base directory `Vethorm`
+
+If you are in another directory you will need to change the directory following `-f`
+
+> sudo -u vethorm psql -f postgre_files/create_vethorm_database.sql vethorm
+
+### Create Secret
+
+Assumes you are in base directory
+
+> touch utilities/secret.py
+
+Add the following to secret.py
+
+```
+# POSTGRES
+HOST = 'postgre database address'
+PORT = 'postgre port' # this should be an int not a string
+USERNAME = 'vethorm'
+PASSWORD = 'password created for psql account vethorm'
+DATABASE_NAME = 'database name'
+
+# DISCORD
+BOT_TOKEN = 'your bot token'
+
+# USERS
+OWNER = 'your discord id' # this should be an int not a string
+
+# ALERT - if you want to disable alerts set both to None, id's should be int snowflake id's
+PROFILE_ID = 'id to alert' 
+LOOKOUT_ID = 'id to watch for'
+```
+
+
+
+
