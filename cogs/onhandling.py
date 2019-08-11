@@ -4,10 +4,12 @@ from datetime import datetime
 
 # THIRD PARTY IMPORTS
 
+import discord
 from discord.ext import commands
 
 # PROJECT IMPORTS
 
+import utilities.secret as secret
 import utilities.vqueries as vquery
 
 # CONSTANTS
@@ -24,6 +26,8 @@ class OnHandling(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.valid_msg_types = ['Original', 'Edit: before', 'Edit: after', 'Deletion']
+        self.id_to_alert = secret.PROFILE_ID
+        self.id_to_watch = secret.LOOKOUT_ID
 
     async def _user_logging(self, msg, msg_type: str, msg_time: datetime):
         """
@@ -44,6 +48,50 @@ class OnHandling(commands.Cog):
             raise TypeError
         await vquery.insert_channel_message( self.bot, msg.id, msg.channel.id, msg.guild.id, msg.clean_content, msg_type, msg_time )
 
+    async def _member_join_alert(self, member):
+        if self.id_to_alert is None:
+            return
+
+        user = self.bot.get_user(self.id_to_alert)
+        dm = user.dm_channel
+        if dm is None:
+            await user.create_dm()
+            dm = user.dm_channel
+        embed = discord.Embed(title="Member joined UCI", description=f'Joined at: {member.joined_at}', color=0x00812a)
+
+        embed.add_field(name='Username', value=f'{member.name}#{member.discriminator}', inline=False)
+        embed.add_field(name='Snowflake', value=str(member.id), inline=False)
+
+        await dm.send(embed=embed)
+
+    async def _mentioned(self, msg) -> bool:
+        """
+            Checks if a specified user was mentioned in the message
+        """
+        user = self.bot.get_user(self.id_to_watch)
+        return user.name.lower() in msg.clean_content.lower()
+
+    async def _mention_alert(self, msg):
+        """
+            Sends an alert to a specified user with message author, author snowflake, and content 
+        """
+        if self.id_to_alert is None:
+            return
+        user = self.bot.get_user(self.id_to_alert)
+        dm = user.dm_channel
+        if dm is None:
+            await user.create_dm()
+            dm = user.dm_channel
+        embed = discord.Embed(title='Profile mentioned')
+        embed.add_field(name='Mentioned by', value=f'{msg.author.name}#{msg.author.discriminator} - ({msg.author.id})', inline=False)
+        embed.add_field(name='Guild', value=msg.channel.guild.name, inline=False)
+        embed.add_field(name='Channel', value=msg.channel.name, inline=False)
+        embed.add_field(name='Content', value=msg.clean_content, inline=False)
+        embed.add_field(name='Time', value=str(msg.created_at))
+
+        await dm.send(embed=embed)
+
+
     @commands.Cog.listener()
     async def on_message(self, message):
         """
@@ -54,6 +102,8 @@ class OnHandling(commands.Cog):
         # This first check should probably be registered as a check to the bot later and used as a decorator
         if message.author.bot:
             return
+        if await self._mentioned(message):
+            await self._mention_alert(message)
         if message.guild.id not in self.bot.Vguilds:
             await vquery.insert_guild(self.bot, message.guild.id)
         if message.author.id not in self.bot.Vusers[message.guild.id]:
@@ -112,6 +162,14 @@ class OnHandling(commands.Cog):
     #     print(self.bot.owner_id)
     #     owner = await self.bot.fetch_user(self.bot.owner_id)
     #     await ctx.send(f'Error: {error}\n{owner.mention} - Error type: {error')
+
+    @commands.Cog.listener()
+    async def on_member_join(self, member):
+        """
+            Alerts a specified user on member joins
+        """
+        await self._member_join_alert(member)
+
 
 def setup(bot):
     bot.add_cog(OnHandling(bot))
