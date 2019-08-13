@@ -35,10 +35,10 @@ class Watch(commands.Cog):
         """
         mode = mode.lower()
         if mode in ['on', 'off']:
-            if mode == 'on' and not self.bot.Vservers[ctx.guild.id]['watch_mode']:
+            if mode == 'on' and not self.bot.Vguilds[ctx.guild.id]['watch_mode']:
                 await vquery.update_guild_watch_mode(self.bot, ctx.guild.id, True)
                 await ctx.send('Guild watch mode set to `True`')
-            elif mode == 'off' and self.bot.Vservers[ctx.guild.id]['watch_mode']:
+            elif mode == 'off' and self.bot.Vguilds[ctx.guild.id]['watch_mode']:
                 await vquery.update_guild_watch_mode(self.bot, ctx.guild.id, False)
                 await ctx.send('Guild watch mode set to `False`')
             else:
@@ -69,8 +69,8 @@ class Watch(commands.Cog):
         """
             checks the watch mode for the server
         """
-        if ctx.guild.id in self.bot.Vservers:
-            await ctx.send("Watch enabled" if self.bot.Vservers[ctx.guild.id]['watch_mode'] else "Watch disabled")
+        if ctx.guild.id in self.bot.Vguilds:
+            await ctx.send("Watch enabled" if self.bot.Vguilds[ctx.guild.id]['watch_mode'] else "Watch disabled")
         else:
             await ctx.send('Something brok :b:')
 
