@@ -46,7 +46,7 @@ class OnHandling(commands.Cog):
         """
         if msg_type not in self.valid_msg_types:
             raise TypeError
-        await vquery.insert_channel_message( self.bot, msg.id, msg.channel.id, msg.guild.id, msg.clean_content, msg_type, msg_time )
+        await vquery.insert_channel_message( self.bot, msg.id, msg.channel.id, msg.guild.id, msg.clean_content, msg_type, msg_time, msg.author.id)
 
     async def _member_join_alert(self, member):
         if self.id_to_alert is None:

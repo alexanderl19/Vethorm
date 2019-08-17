@@ -28,6 +28,7 @@ CREATE TABLE user_logs (
 CREATE TABLE channel_logs (
     -- c_log_id BIGINT PRIMARY KEY AUTO_INCREMENT,
     message_id BIGINT,
+    user_id BIGINT REFERENCES users(user_id),
     channel_id BIGINT REFERENCES channels(chan_id),
     guild_id BIGINT REFERENCES guilds(guild_id),
     msg VARCHAR(2000),

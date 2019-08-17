@@ -112,15 +112,16 @@ async def remove_channel(bot: Bot, chan_id, guild_id):
 
             bot.Vchans[guild_id].discard(chan_id)
 
-async def insert_channel_message(bot: Bot, message_id:int, chan_id: int, guild_id: int, message: str, message_type: str, date: datetime):
+async def insert_channel_message(bot: Bot, message_id: int, chan_id: int, guild_id: int, message: str, message_type: str, date: datetime, user_id: int, ):
     """
         Inserts a channel message into the database
     """
+    print(f'INSERT: {message_id}, {chan_id}, {guild_id}, {message}, {message_type}, {date}, {user_id}')
     async with bot.Vpool.acquire() as conn:
         async with conn.transaction():
             await conn.execute(''' 
-                INSERT INTO channel_logs 
-                VALUES ($1, $2, $3, $4, $5, $6) ''', message_id, chan_id, guild_id, message, message_type, date)
+                INSERT INTO channel_logs (message_id, channel_id, guild_id, msg, msg_type, msg_date, user_id)
+                VALUES ($1, $2, $3, $4, $5, $6, $7) ''', message_id, chan_id, guild_id, message, message_type, date, user_id)
             # print(f'INSERT: {message_id}, {chan_id}, {guild_id}, {message}, {message_type}, {date}')
 
 async def request_channel_logs(bot: Bot, chan_id: int, guild_id: int) -> [dict]:
@@ -136,6 +137,7 @@ async def request_channel_logs(bot: Bot, chan_id: int, guild_id: int) -> [dict]:
             ''')
         return [{
             'message_id'    : item['message_id'],
+            'user_id'       : item['user_id'],
             'channel_id'    : item['chan_id'],
             'guild_id'      : item['guild_id'],
             'msg'           : item['msg'],
