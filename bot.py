@@ -1,80 +1,95 @@
+# STL
+
 import asyncio
-import json
+import traceback
+import sys
+
+# THIRD PARTY
 
 import discord
 from discord.ext import commands
 
-import datamanagement
-import secret
+# PROJECT
 
-try:
-    import uvloop
-except ImportError:
-    print("uvloop was unable to import\n"
-          "regular asyncio will run instead of uvloop")
-else:
-    asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
+import utilities.vqueries as vquery
+import utilities.secret as secret
+from utilities.catalogue import UCICatalogueCachedScraper
 
-extensions = [
-    "addons.alerts",
-    "utilities.error_handling",
-    "addons.mod",
-    "addons.onhandling",
-    "addons.tags",
-    "addons.ucicourses",
-    "addons.watch"
+# CONSTANTS
+
+description = 'Vethorm: Protector of the shrine.\nBot made for the UCI Discord server.'
+
+cogs = [
+    'cogs.courses',
+    'cogs.onhandling',
+    'cogs.tags',
+    'cogs.utility',
+    'cogs.watch'
 ]
 
-prefix = ["$"]
+# FUNCTIONS
 
-bot = commands.Bot(command_prefix=prefix)
-bot.guild_data = datamanagement.setup()
+def _prefix_callable(bot, msg):
+    user_id = bot.user.id
+    base = [f'<@!{user_id}> ', f'<@{user_id} ', '$']
+    return base
+
+# CLASSES
+
+class Vethorm(commands.Bot):
+    def __init__(self):
+        super().__init__(command_prefix=_prefix_callable, owner_id=secret.OWNER)
+
+        loop = asyncio.get_event_loop()
+        vrun = loop.run_until_complete
+
+        # asyncpg connection pool THIS MUST BE LOADED FIRST
+        self.Vpool = vrun(vquery.init_database_connection())
+        # UCICatalogueCachedScraper object for scraping
+        self.Vcourses = UCICatalogueCachedScraper(7*86400)
+        # dictionary course aliases
+        self.Valiases = vrun(vquery.request_catalogue_aliases(self))
+        # dictionary of servers
+        self.Vguilds = vrun(vquery.request_guilds(self))
+        # diction of users by guild id
+        self.Vusers = vrun(vquery.request_users(self))
+        # dictionary of channels by guild id
+        self.Vchans = vrun(vquery.request_channels(self))
+        # dictionary of tags by server
+        self.Vtags = vrun(vquery.request_tags(self))
+
+        for cog in cogs:
+            try:
+                self.load_extension(cog)
+            except Exception:
+                print(f'Cog failed to load ({cog}).', file=sys.stderr)
+                traceback.print_exc()
+
+    async def on_ready(self):
+        print(f'{self.user} online (ID: {self.user.id})')
+        print(f'==================================================')
+        game = discord.Game(name='Watching the shrine')
+        await self.change_presence(activity=game)
+        # load guild and insert new ones
+        for guild in self.guilds:
+            if guild.id not in self.Vguilds:
+                await vquery.insert_guild(self, guild.id)
+        print('==== Guilds Loaded ====')
+
+    async def on_message(self, message):
+        if message.author.bot:
+            return
+        await self.process_commands(message)
+
+    async def on_guild_join(self, guild):
+        if guild.id not in self.Vguilds:
+            await vquery.insert_guild(self, guild.id)
+    
+    def run(self):
+        super().run(secret.BOT_TOKEN, reconnect=True)
+        
+
+# MAIN
 
 
-def dump_guild_data() -> None:
-    '''dumps guild data from our .json file'''
-    with open("data/guild_data.json", 'w') as file:
-        json.dump(bot.guild_data, file, indent=5)
-
-
-bot.dump = dump_guild_data
-
-
-@bot.event
-async def on_ready() -> None:
-    '''runs operations when the bot is ready'''
-    """runs operations when the bot is ready"""
-    print("Logged in as: {user}".format(user=bot.user))
-    print("__________________________________________")
-    game = discord.Game(name="$help for help")
-    await bot.change_presence(activity=game)
-    if bot.guild_data == {}:
-        bot.guild_data = {
-        'alerts': {},
-        'alert_users': [],
-        'tags': {},
-        'cataloguealiases': {},
-        'botlogs': None,
-        'watchmode': False,
-        'channelwatch': False,
-        'watching': []
-        }
-        bot.dump()
-
-
-@bot.event
-async def on_message(message):
-    if message.author.bot:
-        return
-    await bot.process_commands(message)
-
-if __name__ == "__main__":
-    for extension in extensions:
-        try:
-            bot.load_extension(extension)
-        except Exception as e:
-            print("Failed to load extension {exten}\n"
-                  "ERROR - {error_name}: {error}".format(exten=extension, error_name=type(e).__name__, error=e))
-
-    bot.run(secret.BOT_TOKEN)
 

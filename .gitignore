@@ -1,5 +1,9 @@
 data/
 secret.py
+postgre_files/dev_credentials
+
+# VSCode
+.vscode
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

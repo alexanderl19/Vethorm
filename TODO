@@ -1,6 +1,15 @@
-finish working on course aliasing,
-removing aliases,
-adding,
-error messages,
-confirmation messages,
-etc
+COMPLETED
+==============
+All course functions should be working
+All onhandling functionality should be working for channel and user logging
+All watch functionality should be working except requesting channel log files
+
+
+UNFINISHED
+==============
+Comprehensive confirmation messages
+Comprehensive error messages
+Logging
+Remind feature
+Finishing tags
+Adding websoc to courseinfo
