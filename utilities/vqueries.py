@@ -116,7 +116,7 @@ async def insert_channel_message(bot: Bot, message_id: int, chan_id: int, guild_
     """
         Inserts a channel message into the database
     """
-    print(f'INSERT: {message_id}, {chan_id}, {guild_id}, {message}, {message_type}, {date}, {user_id}')
+    # print(f'INSERT: {message_id}, {chan_id}, {guild_id}, {message}, {message_type}, {date}, {user_id}')
     async with bot.Vpool.acquire() as conn:
         async with conn.transaction():
             await conn.execute(''' 
