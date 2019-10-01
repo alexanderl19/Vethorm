@@ -4,5 +4,7 @@ DELETE FROM channels;
 DELETE FROM tags;
 DELETE FROM user_logs;
 DELETE FROM users;
-DELETE FROM servers;
+DELETE FROM guilds;
 -- DROP TABLE watchlist;
+
+DROP TABLE channel_logs
