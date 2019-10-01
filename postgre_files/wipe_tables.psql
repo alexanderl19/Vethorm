@@ -7,4 +7,4 @@ DELETE FROM users;
 DELETE FROM guilds;
 -- DROP TABLE watchlist;
 
-DROP TABLE channel_logs
+-- DROP TABLE channel_logs
