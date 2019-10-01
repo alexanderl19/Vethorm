@@ -226,7 +226,7 @@ async def insert_tag(bot: Bot, tag: str, guild_id: int, info: str):
     async with bot.Vpool.acquire() as conn:
         async with conn.transaction():
             await conn.execute(''' INSERT INTO tags VALUES ($1, $2, $3) ''', tag, guild_id, info)
-            bot.Vtags[tag] = info
+            bot.Vtags[guild_id][tag] = info
 
 async def remove_tag(bot: Bot, tag: str, guild_id: int):
     """

@@ -72,7 +72,6 @@ class Tags(commands.Cog):
         else:
             await ctx.send(f'Tag `{name}` doesn\'t exist')
 
-    @commands.has_permissions(administrator=True)
     @commands.guild_only()
     @commands.command()
     async def ltags(self, ctx):
