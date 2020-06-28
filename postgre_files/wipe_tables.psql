@@ -1,6 +1,7 @@
 DELETE FROM catalogue_alias;
 DELETE FROM channel_logs;
 DELETE FROM channels;
+DELETE FROM voice_channels;
 DELETE FROM tags;
 DELETE FROM user_logs;
 DELETE FROM users;

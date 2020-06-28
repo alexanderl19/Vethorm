@@ -91,7 +91,6 @@ class OnHandling(commands.Cog):
 
         await dm.send(embed=embed)
 
-
     @commands.Cog.listener()
     async def on_message(self, message):
         """
@@ -170,6 +169,19 @@ class OnHandling(commands.Cog):
         """
         await self._member_join_alert(member)
 
+    @commands.Cog.listener()
+    async def on_voice_state_update(self, member, before, after):
+        before_channel = before.channel
+        after_channel = after.channel
+        guild = member.guild
+
+        if before_channel is not None and before_channel.id in self.bot.Vvc[guild.id]:
+            role = guild.get_role(self.bot.Vvc[guild.id][before_channel.id]['role_id'])
+            await member.remove_roles(role)
+
+        if after_channel is not None and after_channel.id in self.bot.Vvc[guild.id]:
+            role = guild.get_role(self.bot.Vvc[guild.id][after_channel.id]['role_id'])
+            await member.add_roles(role)
 
 def setup(bot):
     bot.add_cog(OnHandling(bot))

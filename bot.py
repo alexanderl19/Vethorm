@@ -24,6 +24,7 @@ cogs = [
     'cogs.onhandling',
     'cogs.tags',
     'cogs.utility',
+    'cogs.voice_channel',
     'cogs.watch'
 ]
 
@@ -57,6 +58,8 @@ class Vethorm(commands.Bot):
         self.Vchans = vrun(vquery.request_channels(self))
         # dictionary of tags by server
         self.Vtags = vrun(vquery.request_tags(self))
+        # dictionary of voice channel info by server
+        self.Vvc = vrun(vquery.request_voice_channels(self))
 
         for cog in cogs:
             try:

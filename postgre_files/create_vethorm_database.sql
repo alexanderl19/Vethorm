@@ -1,21 +1,28 @@
-CREATE TABLE guilds (
+CREATE TABLE IF NOT EXISTS guilds (
     guild_id BIGINT PRIMARY KEY,
     -- TODO: currently flag for all users + channels, switch to separate flags
     watch_mode BOOLEAN
 );
 
-CREATE TABLE users (
+CREATE TABLE IF NOT EXISTS users (
     user_id BIGINT PRIMARY KEY,
     guild_id BIGINT REFERENCES guilds(guild_id)
 );
 
-CREATE TABLE channels (
+CREATE TABLE IF NOT EXISTS channels (
     chan_id BIGINT PRIMARY KEY,
     guild_id BIGINT REFERENCES guilds(guild_id),
     watching BOOLEAN
 );
 
-CREATE TABLE user_logs (
+CREATE TABLE IF NOT EXISTS voice_channels (
+    voice_id BIGINT PRIMARY KEY,
+    text_id BIGINT,
+    guild_id BIGINT REFERENCES guilds(guild_id),
+    role_id BIGINT
+);
+
+CREATE TABLE IF NOT EXISTS user_logs (
     -- u_log_id BIGINT PRIMARY KEY AUTO_INCREMENT,
     message_id BIGINT,
     user_id BIGINT REFERENCES users(user_id),
@@ -25,7 +32,7 @@ CREATE TABLE user_logs (
     msg_date TIMESTAMP
 );
 
-CREATE TABLE channel_logs (
+CREATE TABLE IF NOT EXISTS channel_logs (
     -- c_log_id BIGINT PRIMARY KEY AUTO_INCREMENT,
     message_id BIGINT,
     user_id BIGINT REFERENCES users(user_id),
@@ -36,13 +43,13 @@ CREATE TABLE channel_logs (
     msg_date TIMESTAMP
 );
 
-CREATE TABLE tags (
+CREATE TABLE IF NOT EXISTS tags (
     tag VARCHAR(128) PRIMARY KEY,
     guild_id BIGINT REFERENCES guilds(guild_id),
     info VARCHAR(2000)
 );
 
-CREATE TABLE catalogue_alias (
+CREATE TABLE IF NOT EXISTS catalogue_alias (
     -- Currently only allows one alias
     department VARCHAR(1024) PRIMARY KEY,
     guild_id BIGINT REFERENCES guilds(guild_id),

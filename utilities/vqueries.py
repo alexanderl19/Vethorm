@@ -278,6 +278,7 @@ async def remove_user(bot: Bot, user_id: int, guild_id: int):
             WHERE user_id = $1 AND guild_id = $2
             ''', user_id, guild_id)
 
+            # discard because set
             bot.Vusers[guild_id].discard(user_id)
 
 async def insert_user_message(bot: Bot, message_id:int, user_id: int, guild_id: int, message: str, message_type: str, date: datetime):
@@ -336,8 +337,54 @@ async def request_users(bot: Bot) -> {int : set}:
             results[item['guild_id']].add(item['user_id'])
         return results
 
+# Voice channel functions:
+async def insert_voice_channel(bot: Bot, guild_id: int, voice_id: int, text_id: int, role_id: int):
+    """
+        Inserts new voice channel pairings
+    """
+    async with bot.Vpool.acquire() as conn:
+        async with conn.transaction():
+            args = [voice_id, text_id, guild_id, role_id]
+            await conn.execute('''INSERT INTO voice_channels VALUES ($1, $2, $3, $4)''', *args)
+            bot.Vvc[guild_id][voice_id] = {}
+            bot.Vvc[guild_id][voice_id]['text_id'] = text_id
+            bot.Vvc[guild_id][voice_id]['role_id'] = role_id
+
+async def remove_voice_channel(bot: Bot, guild_id: int , voice_id: int):
+    """
+
+    """
+    async with bot.Vpool.acquire() as conn:
+        async with conn.transaction():
+            await conn.execute('''DELETE FROM voice_channels
+            WHERE guild_id = $1 AND voice_id = $2
+            ''', guild_id, voice_id)
+
+            del bot.Vvc[guild_id][voice_id]
 
 
+async def request_voice_channels(bot: Bot) -> dict:
+    """
+        Returns a dictionary of guild voice channel information
+        {
+            guild id : {
+                voice channel id : {
+                    'text_id' : text id,
+                    'role_id' : role id
+                }
+            }
+        }
+    """
+    async with bot.Vpool.acquire() as conn:
+        stmt = await conn.prepare('SELECT * FROM voice_channels')
+        voice_channels = defaultdict(dict)
+        for row in await stmt.fetch():
+            guild_id = row['guild_id']
+            voice_id = row['voice_id']
+            voice_channels[guild_id][voice_id] = {}
+            voice_channels[guild_id][voice_id]['text_id'] = row['text_id']
+            voice_channels[guild_id][voice_id]['role_id'] = row['role_id']
+        return voice_channels
 
 # MAIN
 
