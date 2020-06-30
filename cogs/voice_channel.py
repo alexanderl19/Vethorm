@@ -13,6 +13,7 @@ class VoiceChannel(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
+    @commands.has_permissions(administrator=True)
     @commands.guild_only()
     @commands.command(name='crvc')
     async def create_voice_channel(self, ctx, channel_name, category=None):
@@ -41,6 +42,7 @@ class VoiceChannel(commands.Cog):
         # TODO: change to embed
         await ctx.send(f'New voice channel created\n Voice id=`{voice_channel.id}`\n Text id=`{text_channel.id}`\n Role id=`{role.id}`')
 
+    @commands.has_permissions(administrator=True)
     @commands.guild_only()
     @commands.command(name='delvc')
     async def delete_voice_channel(self, ctx: Context, voice_id: int):
