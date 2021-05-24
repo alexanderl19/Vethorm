@@ -68,7 +68,7 @@ class OnHandling(commands.Cog):
         """
             Checks if a specified user was mentioned in the message
         """
-        user = self.bot.get_user(self.id_to_watch)
+        user = await self.bot.fetch_user(self.id_to_watch)
         return user.name.lower() in msg.clean_content.lower()
 
     async def _mention_alert(self, msg):
@@ -77,7 +77,7 @@ class OnHandling(commands.Cog):
         """
         if self.id_to_alert is None:
             return
-        user = self.bot.get_user(self.id_to_alert)
+        user = await self.bot.fetch_user(self.id_to_alert)
         dm = user.dm_channel
         if dm is None:
             await user.create_dm()
